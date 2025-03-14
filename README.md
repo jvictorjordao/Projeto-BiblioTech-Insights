@@ -14,7 +14,14 @@ BiblioTech Insights
 </p>
 
 <p align='center'>
-    <a href='https://github.com/ant-design/ant-design/blob/master/README.md?plain=1'>
+    <a href='https://github.com/jvictorjordao/Projeto-BiblioTech-Insights/blob/main/README-EN.md'>
     English README
     </a>
 </p>
+
+## Contextualização
+
+Este projeto foi desenvolvido durante o hackathon promovido pela [Comunidade DS](https://comunidadeds.com/). O desafio utiliza dados da empresa **BiblioTech Insights**, uma organização atuante no mercado editorial, para explorar a análise de dados como ferramenta estratégica.
+
+A proposta deste projeto é desvendar padrões, identificar oportunidades e apresentar insights práticos que podem transformar a forma como a empresa toma decisões. Com um enfoque em **SQL** e **Python**, a análise se concentra na extração de valor a partir de um rico conjunto de informações relacionadas a vendas, autores, editoras, bibliotecas, campanhas promocionais e comportamento de leitores.
+

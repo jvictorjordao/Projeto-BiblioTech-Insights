@@ -4,7 +4,7 @@
 BiblioTech Insights
 </h1>
 
-<p align="center">Um projeto de análise de dados e elaboração de insights acionáveis.</p>
+<p align="center">A project to analyze data and develop actionable insights.</p>
 
 <p align="center">
   <img alt="GitHub language count" src="https://img.shields.io/github/languages/count/jvictorjordao/Projeto-BiblioTech-Insights?color=%2304D361">
@@ -14,7 +14,7 @@ BiblioTech Insights
 </p>
 
 <p align='center'>
-    <a href='https://github.com/ant-design/ant-design/blob/master/README.md?plain=1'>
+    <a href='https://github.com/jvictorjordao/Projeto-BiblioTech-Insights/blob/main/README.md'>
     Portuguese README
     </a>
 </p>
