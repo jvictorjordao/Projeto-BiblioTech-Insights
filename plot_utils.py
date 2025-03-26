@@ -1,5 +1,6 @@
 import pandas as pd
 import plotly.express as px
+import plotly.graph_objects as go
 
 # Function to create a horizontal bar graph for any categorical column
 def create_horizontal_bar_plot(dataframe, column_name, graph_title=None):
@@ -59,13 +60,13 @@ def create_vertical_bar_plot(dataframe, column_name, graph_title=None):
 # Function to create a box plot for any numeric column
 def create_box_plot(dataframe, column_name, graph_title=None):
     if graph_title is None:
-        graph_title = f'Box Plot Distribution of {column_name.title()}'
+        graph_title = f'Box Plot Distribution of {column_name.replace('_', ' ').title()}'
 
     fig = px.box(
         dataframe,
         x=column_name,
         title=graph_title,
-        labels={column_name: f'{column_name.title()} Amount'},
+        labels={column_name: f'{column_name.replace('_', ' ').title()} Amount'},
         color_discrete_sequence=['seagreen']
     )
     fig.update_layout(
@@ -120,7 +121,7 @@ def create_vertical_high_value_bar_plot(dataframe, column_name, aggregation_colu
         aggregation_column: 'sum'
     })
 
-    grouped_df = grouped_df.sort_values(aggregation_column, ascending=False).round(2)
+    grouped_df = grouped_df.sort_values(aggregation_column, ascending=False).round(2).reset_index()
 
     if graph_title is None:
         graph_title = f'Highest {aggregation_column.replace('_', ' ').title()} by {column_name.replace('_', ' ').title()}'
@@ -135,9 +136,102 @@ def create_vertical_high_value_bar_plot(dataframe, column_name, aggregation_colu
     )
 
     fig.update_layout(
-        # xaxis_title=column_name.replace('_', ' ').title(),
-        # yaxis_title=aggregation_column.replace('_', ' ').title(),
         template='plotly_white',
+        height=800,
+        width=1200
+    )
+
+    fig.show()
+
+# Function to create a vertical bar graph for aggregated high values but normalized
+def create_vertical_high_value_bar_plot_normalized(dataframe, column_name, aggregation_column, graph_title=None, quantile=0.75):
+    high_value_threshold = dataframe[aggregation_column].quantile(quantile)
+
+    filtered_df = dataframe[dataframe[aggregation_column] >= high_value_threshold]
+
+    grouped_df = filtered_df.groupby(column_name).agg(
+        total_revenue=(aggregation_column, 'sum'),
+        books_count=('isbn', 'count')
+    ).reset_index()
+
+    grouped_df['proportional'] = grouped_df['total_revenue'] / grouped_df['books_count']
+
+    grouped_df = grouped_df.sort_values('proportional', ascending=False).round(2).reset_index()
+
+    if graph_title is None:
+        graph_title = f'Highest {aggregation_column.replace('_', ' ').title()} by {column_name.replace('_', ' ').title()} (Normalized)'
+
+    fig = px.bar(
+        grouped_df,
+        x=column_name,
+        y='proportional',
+        title=graph_title,
+        labels={column_name: column_name.replace('_', ' ').title(), 'proportional': aggregation_column.replace('_', ' ').title()+' per book'},
+        color_discrete_sequence=['darkgreen']
+    )
+
+    fig.update_layout(
+        template='plotly_white',
+        height=800,
+        width=1200
+    )
+
+    fig.show()
+
+
+# Function to create a vertical bar graph for aggregated high values and a line plot for the normalized values
+def create_vertical_high_value_bar_line_plot(df, column_name, aggregation_column, graph_title=None, quantile=0.75, legend_pos=[0.95, 0.95]):
+    high_value_threshold = df[aggregation_column].quantile(quantile)
+
+    filtered_df = df[df[aggregation_column] >= high_value_threshold]
+
+    grouped_df = filtered_df.groupby(column_name).agg(
+        total_revenue=(aggregation_column, 'sum'),
+        books_count=('isbn', 'count')
+    ).reset_index()
+
+    grouped_df['normalized_sales'] = grouped_df['total_revenue'] / grouped_df['books_count']
+
+    grouped_df = grouped_df.sort_values('total_revenue', ascending=False).round(2).reset_index()
+
+    if graph_title is None:
+        graph_title = f'{aggregation_column.replace("_", " ").title()} and {aggregation_column.replace("_", " ").title()} Normalized by {column_name.replace("_", " ").title()}'
+
+    fig = go.Figure()
+
+    # Adicionar barras para as vendas totais (eixo primário)
+    fig.add_trace(go.Bar(
+        x=grouped_df[column_name],
+        y=grouped_df['total_revenue'],
+        name=f'{aggregation_column.replace("_", " ").title()}',
+        marker_color='seagreen'
+    ))
+
+    # Adicionar linha para as vendas normalizadas (eixo secundário)
+    fig.add_trace(go.Scatter(
+        x=grouped_df[column_name],
+        y=grouped_df['normalized_sales'],
+        name=f'{aggregation_column.replace("_", " ").title()} Normalized by book',
+        mode='lines+markers',
+        marker_color='royalblue',
+        yaxis='y2'
+    ))
+
+    # Atualizar layout para dois eixos Y
+    fig.update_layout(
+        title=graph_title,
+        xaxis_title=f'{column_name.replace("_", " ").title()}',
+        yaxis=dict(
+            title=f'{aggregation_column.replace("_", " ").title()}',
+        ),
+        yaxis2=dict(
+            title=f'{aggregation_column.replace("_", " ").title()} Normalized',
+            overlaying='y',
+            side='right',
+            tickmode='sync'
+        ),
+        legend=dict(y=legend_pos[1], xanchor='right', x=legend_pos[0]),
+        template="plotly_white",
         height=800,
         width=1200
     )
