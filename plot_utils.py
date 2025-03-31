@@ -223,17 +223,72 @@ def create_vertical_high_value_bar_line_plot(df, column_name, aggregation_column
         xaxis_title=f'{column_name.replace("_", " ").title()}',
         yaxis=dict(
             title=f'{aggregation_column.replace("_", " ").title()}',
+            title_font_color='seagreen',
+            tickfont_color='seagreen'
         ),
         yaxis2=dict(
             title=f'{aggregation_column.replace("_", " ").title()} Normalized',
             overlaying='y',
             side='right',
-            tickmode='sync'
+            tickmode='sync',
+            title_font_color='royalblue',
+            tickfont_color='royalblue'
         ),
         legend=dict(y=legend_pos[1], xanchor='right', x=legend_pos[0]),
         template="plotly_white",
         height=800,
         width=1200
+    )
+
+    fig.show()
+
+def plot_top_quartile_and_sales(df, column_name, aggregation_column, graph_title=None, quantile=0.5, legend_pos=[0.5, 1.1]):
+    high_value_threshold = df[aggregation_column].quantile(quantile)
+
+    filtered_df = df[df[aggregation_column] >= high_value_threshold].sort_values(aggregation_column, ascending=False)
+
+    if graph_title is None:
+        graph_title = f'Top quartile {aggregation_column.replace("_", " ").title()} and {column_name.replace("_", " ").title()}'
+
+    fig = go.Figure()
+
+    fig.add_trace(go.Bar(
+        x=filtered_df['title'],
+        y=filtered_df[aggregation_column],
+        name=f'{aggregation_column.replace("_", " ").title()}',
+        marker_color='seagreen'
+    ))
+
+    fig.add_trace(go.Scatter(
+        x=filtered_df['title'],
+        y=filtered_df[column_name],
+        name=f'{column_name.replace("_", " ").title()}',
+        mode='lines+markers',
+        marker_color='royalblue',
+        yaxis='y2'
+    ))
+
+    fig.update_layout(
+        title=graph_title,
+        xaxis_title='Book Title',
+        yaxis=dict(
+            title=f'{aggregation_column.replace("_", " ").title()}',
+            title_font_color='seagreen',
+            tickfont_color='seagreen',
+            range=[filtered_df[aggregation_column].min()-0.1, filtered_df[aggregation_column].max()+0.1]
+        ),
+        yaxis2=dict(
+            title=f'{column_name.replace("_", " ").title()}',
+            overlaying='y',
+            side='right',
+            tickmode='sync',
+            title_font_color='royalblue',
+            tickfont_color='royalblue'
+        ),
+        template="plotly_white",
+        height=600,
+        width=1400,
+        legend=dict(orientation="h", x=legend_pos[0], y=legend_pos[1])
     )
 
     fig.show()
