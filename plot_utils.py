@@ -57,6 +57,32 @@ def create_vertical_bar_plot(dataframe, column_name, graph_title=None):
 
     fig.show()
 
+# Function to create a generical bar plot
+def create_bar_plot(dataframe, column_name, aggregation_column, graph_title=None):
+    df_plot = dataframe.groupby(column_name).agg({aggregation_column:'sum'}).reset_index()
+    df_plot = df_plot.sort_values(aggregation_column, ascending=False).round(2)
+    if graph_title is None:
+        graph_title =f'{column_name.replace("_", " ").title()} by {aggregation_column.replace("_", " ").title()}'
+
+    fig = px.bar(
+    df_plot,
+    x=column_name,
+    y=aggregation_column,
+    title=graph_title,
+    color_discrete_sequence=['seagreen']
+    )
+
+    fig.update_layout(
+    template='plotly_white',
+    title_font_size=16,
+    xaxis_title=column_name.replace("_", " ").title(),
+    yaxis_title=aggregation_column.replace("_", " ").title(),
+    height=600,
+    width=800
+    )
+
+    fig.show()
+
 # Function to create a box plot for any numeric column
 def create_box_plot(dataframe, column_name, graph_title=None):
     if graph_title is None:
