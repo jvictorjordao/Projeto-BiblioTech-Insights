@@ -24,7 +24,7 @@ def create_horizontal_bar_plot(dataframe, column_name, graph_title=None):
     title_font_size=16,
     xaxis_title='Count',
     yaxis_title=df_plot.columns[0],
-    height=600,
+    height=800,
     width=800
     )
 
@@ -106,13 +106,14 @@ def create_box_plot(dataframe, column_name, graph_title=None):
 def create_horizontal_high_value_bar_plot(dataframe, column_name, aggregation_column, graph_title=None, quantile=0.75):
     high_value_threshold = dataframe[aggregation_column].quantile(quantile)
 
-    filtered_df = dataframe[dataframe[aggregation_column] >= high_value_threshold]
-
-    grouped_df = filtered_df.groupby(column_name, as_index=False).agg({
+    
+    grouped_df = dataframe.groupby(column_name, as_index=False).agg({
         aggregation_column: 'sum'
     })
 
     grouped_df = grouped_df.sort_values(aggregation_column, ascending=True).round(2)
+
+    grouped_df = grouped_df[grouped_df[aggregation_column] >= high_value_threshold]
 
     if graph_title is None:
         graph_title = f'Highest {aggregation_column.replace('_', ' ').title()} by {column_name.replace('_', ' ').title()}'
@@ -141,13 +142,12 @@ def create_horizontal_high_value_bar_plot(dataframe, column_name, aggregation_co
 def create_vertical_high_value_bar_plot(dataframe, column_name, aggregation_column, graph_title=None, quantile=0.75):
     high_value_threshold = dataframe[aggregation_column].quantile(quantile)
 
-    filtered_df = dataframe[dataframe[aggregation_column] >= high_value_threshold]
-
-    grouped_df = filtered_df.groupby(column_name, as_index=True).agg({
+    grouped_df = dataframe.groupby(column_name, as_index=True).agg({
         aggregation_column: 'sum'
     })
 
     grouped_df = grouped_df.sort_values(aggregation_column, ascending=False).round(2).reset_index()
+    grouped_df = grouped_df[grouped_df[aggregation_column] >= high_value_threshold]
 
     if graph_title is None:
         graph_title = f'Highest {aggregation_column.replace('_', ' ').title()} by {column_name.replace('_', ' ').title()}'
@@ -208,10 +208,8 @@ def create_vertical_high_value_bar_plot_normalized(dataframe, column_name, aggre
 # Function to create a vertical bar graph for aggregated high values and a line plot for the normalized values
 def create_vertical_high_value_bar_line_plot(df, column_name, aggregation_column, graph_title=None, quantile=0.75, legend_pos=[0.95, 0.95]):
     high_value_threshold = df[aggregation_column].quantile(quantile)
-
-    filtered_df = df[df[aggregation_column] >= high_value_threshold]
-
-    grouped_df = filtered_df.groupby(column_name).agg(
+    
+    grouped_df = df.groupby(column_name).agg(
         total_revenue=(aggregation_column, 'sum'),
         books_count=('isbn', 'count')
     ).reset_index()
@@ -219,6 +217,8 @@ def create_vertical_high_value_bar_line_plot(df, column_name, aggregation_column
     grouped_df['normalized_sales'] = grouped_df['total_revenue'] / grouped_df['books_count']
 
     grouped_df = grouped_df.sort_values('total_revenue', ascending=False).round(2).reset_index()
+
+    grouped_df = grouped_df[grouped_df['total_revenue'] >= high_value_threshold]
 
     if graph_title is None:
         graph_title = f'{aggregation_column.replace("_", " ").title()} and {aggregation_column.replace("_", " ").title()} Normalized by {column_name.replace("_", " ").title()}'
@@ -267,6 +267,7 @@ def create_vertical_high_value_bar_line_plot(df, column_name, aggregation_column
     )
 
     fig.show()
+
 
 def plot_top_quartile_and_sales(df, column_name, aggregation_column, graph_title=None, quantile=0.5, legend_pos=[0.5, 1.1]):
     high_value_threshold = df[aggregation_column].quantile(quantile)
